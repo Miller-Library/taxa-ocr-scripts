@@ -178,7 +178,7 @@ async def process_image(
 
     status_response = await check_processing_status(process_id, session)
     await asyncio.sleep(5)
-    while status_response is not None and status_response["status"] in [
+    while status_response is not None and status_response.get("status", None) in [
         "CREATED",
         "WAITING",
         "RUNNING",
@@ -187,12 +187,16 @@ async def process_image(
         await asyncio.sleep(5)
         status_response = await check_processing_status(process_id, session)
 
-    if status_response is not None:
+    if (
+        status_response is not None
+        and status_response.get("status", None) == "FINISHED"
+    ):
         logging.info("Success -- writing output to %s", output_path)
         write_output(status_response, Path(output_path))
         counts["processed"] += 1
     else:
         logging.fatal("Processing failed? Image: %s Process ID: %s", image, process_id)
+        logging.fatal(status_response)
         counts["failed"] += 1
 
 
