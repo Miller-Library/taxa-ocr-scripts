@@ -7,6 +7,7 @@ import asyncio
 import logging
 import re
 from pathlib import Path
+from urllib.parse import unquote
 
 import aiofiles
 import aiohttp
@@ -81,7 +82,7 @@ def get_image_data_from_manifest(druid: str, manifest: dict) -> list[tuple[str, 
         #  pattern must be relaxed considerably.  Ah well, it is what it is...
 
         assert (
-            match := re.match(pattern, url)
+            match := re.match(pattern, unquote(url))
         ), f"'{url}' does not match expected pattern"
 
         image_data.append((url, f"{druid}/{match.group(1)}.json"))
